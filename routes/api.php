@@ -23,3 +23,5 @@ Route::put('produto/{id}', [\App\Http\Controllers\ProductController::class, 'upd
 Route::delete('produto/{id}', [\App\Http\Controllers\ProductController::class, 'destroy']);
 Route::get('produto/{id}', [\App\Http\Controllers\ProductController::class, 'show']);
 Route::get('produto', [\App\Http\Controllers\ProductController::class, 'index']);
+
+Route::post('pagamento', [\App\Http\Controllers\PaymentController::class, 'pay'])->middleware('throttle:limit-request');
