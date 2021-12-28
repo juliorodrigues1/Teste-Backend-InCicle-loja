@@ -34,6 +34,7 @@ class PaymentController extends Controller
                 $this->paymentProduct($request->products, $pay);
 
                 DB::commit();
+
             }
         }catch (\Exception $exception) {
             DB::rollBack();
