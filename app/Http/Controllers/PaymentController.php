@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Payment;
 use App\Models\Paymente_Product;
 use App\Models\Product;
+use Barryvdh\DomPDF\Facade as PDF;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -34,7 +35,15 @@ class PaymentController extends Controller
                 $this->paymentProduct($request->products, $pay);
 
                 DB::commit();
+                $user = auth('api')->user();
+                $products = $this->products($request->products);
+                $data = collect([
+                    ['user' => $user],
+                    ['products' => $products],
+                    ['pay' => $pay]
+                ]);
 
+                return $this->pdf($data);
             }
         }catch (\Exception $exception) {
             DB::rollBack();
@@ -85,5 +94,20 @@ class PaymentController extends Controller
                 'product_id' => $product->id
             ]);
         }
+    }
+
+    private function pdf($data){
+        $pdf = PDF::loadView('pdf', compact('data'));
+        return $pdf->download('invoice.pdf');
+    }
+
+    private function products($productsRequest){
+        $products = [];
+        foreach ($productsRequest as $key=> $productsJson){
+            $product = json_decode($productsJson);
+            $product = Product::findOrFail($product->id);
+            $products[$key] = $product->name;
+        }
+        return $products;
     }
 }
